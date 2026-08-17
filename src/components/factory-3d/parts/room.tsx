@@ -38,50 +38,44 @@ export function Room() {
         position={[roomCenterX, 0.01, roomCenterZ]}
       />
 
-      <Hoverable infoKey="wall">
-        <mesh position={[roomCenterX, H / 2, BACK_WALL_Z]}>
-          <boxGeometry args={[ROOM_W, H, 0.2]} />
-          <meshStandardMaterial
-            color={0x9aa5b1}
-            transparent
-            opacity={0.2}
-            roughness={0.6}
-            side={THREE.DoubleSide}
-            emissive={0x000000}
-          />
-          <Edges />
-        </mesh>
-      </Hoverable>
+      <mesh position={[roomCenterX, H / 2, BACK_WALL_Z]}>
+        <boxGeometry args={[ROOM_W, H, 0.2]} />
+        <meshStandardMaterial
+          color={0x9aa5b1}
+          transparent
+          opacity={0.2}
+          roughness={0.6}
+          side={THREE.DoubleSide}
+          emissive={0x000000}
+        />
+        <Edges />
+      </mesh>
 
-      <Hoverable infoKey="wall">
-        <mesh position={[ROOM_MIN_X, H / 2, roomCenterZ]}>
-          <boxGeometry args={[0.2, H, roomDepth]} />
-          <meshStandardMaterial
-            color={0x9aa5b1}
-            transparent
-            opacity={0.2}
-            roughness={0.6}
-            side={THREE.DoubleSide}
-            emissive={0x000000}
-          />
-          <Edges />
-        </mesh>
-      </Hoverable>
+      <mesh position={[ROOM_MIN_X, H / 2, roomCenterZ]}>
+        <boxGeometry args={[0.2, H, roomDepth]} />
+        <meshStandardMaterial
+          color={0x9aa5b1}
+          transparent
+          opacity={0.2}
+          roughness={0.6}
+          side={THREE.DoubleSide}
+          emissive={0x000000}
+        />
+        <Edges />
+      </mesh>
 
-      <Hoverable infoKey="wall">
-        <mesh position={[ROOM_MAX_X, H / 2, roomCenterZ]}>
-          <boxGeometry args={[0.2, H, roomDepth]} />
-          <meshStandardMaterial
-            color={0x9aa5b1}
-            transparent
-            opacity={0.2}
-            roughness={0.6}
-            side={THREE.DoubleSide}
-            emissive={0x000000}
-          />
-          <Edges />
-        </mesh>
-      </Hoverable>
+      <mesh position={[ROOM_MAX_X, H / 2, roomCenterZ]}>
+        <boxGeometry args={[0.2, H, roomDepth]} />
+        <meshStandardMaterial
+          color={0x9aa5b1}
+          transparent
+          opacity={0.2}
+          roughness={0.6}
+          side={THREE.DoubleSide}
+          emissive={0x000000}
+        />
+        <Edges />
+      </mesh>
     </group>
   );
 }

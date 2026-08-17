@@ -100,7 +100,7 @@ export function Exterior() {
         <Elbow position={[CHILLER_X, 3.6, CHILLER_MID_Z]} radius={0.09} color={PUMP_COLOR} />
       </Hoverable>
 
-      <Hoverable infoKey="totes">
+      <Hoverable infoKey="tanks">
         {toteSlots.map(({ dz, dy, color }) => (
           <group key={`${dz}-${dy}`}>
             <mesh position={[ROOM_MIN_X - 0.65, dy, dz]}>
@@ -145,7 +145,7 @@ export function Exterior() {
         </mesh>
       </Hoverable>
 
-      <Hoverable infoKey="gaspipes">
+      <group>
         {GAS_Z.map((gz) => (
           <group key={gz}>
             <Pipe
@@ -167,7 +167,7 @@ export function Exterior() {
             />
           </group>
         ))}
-      </Hoverable>
+      </group>
 
       <Hoverable infoKey="vents">
         <mesh position={[ventX, ventY, (ventZa + ventZb) / 2]}>
