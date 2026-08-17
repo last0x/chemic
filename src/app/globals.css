@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-ink: #101828;
+  --color-ink-soft: #4a5568;
+  --color-border: #e2e5ea;
+
+  --color-primary: #233f83;
+  --color-primary-dark: #1b3166;
+  --color-primary-tint: #edeff5;
+
+  --color-secondary: #f2760e;
+  --color-secondary-dark: #c95f08;
+  --color-secondary-tint: #fdf0e4;
+
+  --color-build: #16a34a;
+  --color-maintain: #ca8a04;
+  --color-reinstate: #233f83;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-border: var(--color-border);
+
+  --color-primary: var(--color-primary);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-primary-tint: var(--color-primary-tint);
+
+  --color-secondary: var(--color-secondary);
+  --color-secondary-dark: var(--color-secondary-dark);
+  --color-secondary-tint: var(--color-secondary-tint);
+
+  --color-build: var(--color-build);
+  --color-maintain: var(--color-maintain);
+  --color-reinstate: var(--color-reinstate);
+
+  --font-display: var(--font-plex-sans);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-plex-mono);
+  --font-serif: var(--font-playfair);
+
+  --animate-hero-zoom: hero-zoom 14s ease-out forwards;
+}
+
+@keyframes hero-zoom {
+  from {
+    transform: scale(1.04);
+  }
+  to {
+    transform: scale(1.14);
+  }
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+/* blueprint grid backdrop */
+.bp-grid {
+  background-image:
+    linear-gradient(to right, rgba(35, 63, 131, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(35, 63, 131, 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* blueprint corner brackets, used as a recurring signature device */
+.bp-corners {
+  position: relative;
+}
+.bp-corners::before,
+.bp-corners::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: var(--color-primary);
+  opacity: 0.55;
+}
+.bp-corners::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+.bp-corners::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,7 @@
+node_modules
+.next
+.env*
+.py-pkgs
+.u2net
+.venv-rembg
+tmp/
