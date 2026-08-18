@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
+import * as THREE from "three";
 import type { CameraView } from "./layout";
 import { ISO_VIEW, LOOK_AT, TOP_VIEW } from "./layout";
 import { Interior } from "./parts/interior";
@@ -12,6 +13,57 @@ import { Tanks } from "./parts/tanks";
 import { Walkway } from "./parts/walkway";
 import { useHover } from "./primitives";
 
+const MIN_RADIUS = 14;
+const MAX_RADIUS = 96;
+
+function isIOS() {
+  if (typeof navigator === "undefined") return false;
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
+}
+
+function createFactoryRenderer(defaultProps: THREE.WebGLRendererParameters) {
+  const canvas = defaultProps.canvas as HTMLCanvasElement;
+  const ios = isIOS();
+  const attrs: WebGLContextAttributes = {
+    antialias: false,
+    alpha: true,
+    depth: true,
+    stencil: false,
+    powerPreference: "default",
+    failIfMajorPerformanceCaveat: false,
+    preserveDrawingBuffer: ios,
+  };
+
+  let context: RenderingContext | null = null;
+  if (ios) {
+    context =
+      canvas.getContext("webgl", attrs) ||
+      canvas.getContext("experimental-webgl", attrs);
+  } else {
+    context =
+      canvas.getContext("webgl2", attrs) ||
+      canvas.getContext("webgl", attrs) ||
+      canvas.getContext("experimental-webgl", attrs);
+  }
+
+  if (!context) {
+    throw new Error("WebGL is not available");
+  }
+
+  return new THREE.WebGLRenderer({
+    ...defaultProps,
+    canvas,
+    context: context as WebGLRenderingContext,
+    antialias: false,
+    alpha: true,
+    powerPreference: "default",
+    stencil: false,
+  });
+}
+
 function OrbitCamera({ view }: { view: CameraView }) {
   const { camera, gl } = useThree();
   const state = useRef({
@@ -21,6 +73,8 @@ function OrbitCamera({ view }: { view: CameraView }) {
     dragging: false,
     lastX: 0,
     lastY: 0,
+    pointers: new Map<number, { x: number; y: number }>(),
+    pinchDist: 0,
   });
 
   useEffect(() => {
@@ -31,60 +85,115 @@ function OrbitCamera({ view }: { view: CameraView }) {
     camera.position.set(
       preset.radius * Math.sin(preset.phi) * Math.sin(preset.theta),
       preset.radius * Math.cos(preset.phi),
-      preset.radius * Math.sin(preset.phi) * Math.cos(preset.theta)
+      preset.radius * Math.sin(preset.phi) * Math.cos(preset.theta),
     );
     camera.lookAt(...LOOK_AT);
   }, [view, camera]);
 
   useEffect(() => {
     const el = gl.domElement;
+    const pointers = state.current.pointers;
 
     const updateCamera = () => {
       const { radius, theta, phi } = state.current;
       camera.position.set(
         radius * Math.sin(phi) * Math.sin(theta),
         radius * Math.cos(phi),
-        radius * Math.sin(phi) * Math.cos(theta)
+        radius * Math.sin(phi) * Math.cos(theta),
       );
       camera.lookAt(...LOOK_AT);
     };
 
+    const pinchDistance = () => {
+      const pts = [...pointers.values()];
+      if (pts.length < 2) return 0;
+      return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+    };
+
     const onDown = (e: PointerEvent) => {
-      state.current.dragging = true;
-      state.current.lastX = e.clientX;
-      state.current.lastY = e.clientY;
+      el.setPointerCapture(e.pointerId);
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pointers.size === 1) {
+        state.current.dragging = true;
+        state.current.lastX = e.clientX;
+        state.current.lastY = e.clientY;
+      } else {
+        state.current.dragging = false;
+        state.current.pinchDist = pinchDistance();
+      }
     };
-    const onUp = () => {
-      state.current.dragging = false;
+
+    const onUp = (e: PointerEvent) => {
+      pointers.delete(e.pointerId);
+      if (el.hasPointerCapture(e.pointerId)) {
+        el.releasePointerCapture(e.pointerId);
+      }
+      if (pointers.size === 0) {
+        state.current.dragging = false;
+        state.current.pinchDist = 0;
+      } else if (pointers.size === 1) {
+        const remaining = [...pointers.values()][0];
+        state.current.dragging = true;
+        state.current.lastX = remaining.x;
+        state.current.lastY = remaining.y;
+        state.current.pinchDist = 0;
+      } else {
+        state.current.pinchDist = pinchDistance();
+      }
     };
+
     const onMove = (e: PointerEvent) => {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+      if (pointers.size >= 2) {
+        const dist = pinchDistance();
+        const prev = state.current.pinchDist;
+        if (prev > 0 && dist > 0) {
+          state.current.radius = Math.min(
+            Math.max(state.current.radius * (prev / dist), MIN_RADIUS),
+            MAX_RADIUS,
+          );
+          state.current.pinchDist = dist;
+          updateCamera();
+        } else {
+          state.current.pinchDist = dist;
+        }
+        return;
+      }
+
       if (!state.current.dragging) return;
       state.current.theta -= (e.clientX - state.current.lastX) * 0.006;
       state.current.phi = Math.min(
         Math.max(state.current.phi - (e.clientY - state.current.lastY) * 0.006, 0.05),
-        Math.PI - 0.05
+        Math.PI - 0.05,
       );
       state.current.lastX = e.clientX;
       state.current.lastY = e.clientY;
       updateCamera();
     };
+
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       state.current.radius = Math.min(
-        Math.max(state.current.radius + e.deltaY * 0.04, 14),
-        96
+        Math.max(state.current.radius + e.deltaY * 0.04, MIN_RADIUS),
+        MAX_RADIUS,
       );
       updateCamera();
     };
 
     el.addEventListener("pointerdown", onDown);
-    window.addEventListener("pointerup", onUp);
-    window.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerup", onUp);
+    el.addEventListener("pointercancel", onUp);
+    el.addEventListener("lostpointercapture", onUp);
+    el.addEventListener("pointermove", onMove);
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => {
       el.removeEventListener("pointerdown", onDown);
-      window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointercancel", onUp);
+      el.removeEventListener("lostpointercapture", onUp);
+      el.removeEventListener("pointermove", onMove);
       el.removeEventListener("wheel", onWheel);
     };
   }, [camera, gl]);
@@ -105,30 +214,62 @@ function FactoryScene() {
   );
 }
 
+function CanvasFallback() {
+  return (
+    <div className="flex h-full w-full items-center justify-center bg-[#e9edf1] px-4 text-center text-sm text-ink-soft">
+      3D preview isn&apos;t available on this device
+    </div>
+  );
+}
+
 export function FactoryCanvas({ view }: { view: CameraView }) {
   const { setHoveredKey } = useHover();
+  const [failed, setFailed] = useState(false);
+  const failRef = useRef(() => {});
+  failRef.current = () => setFailed(true);
+
+  const glFactory = useCallback((props: THREE.WebGLRendererParameters) => {
+    try {
+      return createFactoryRenderer(props);
+    } catch {
+      failRef.current();
+      throw new Error("WebGL is not available");
+    }
+  }, []);
+
+  if (failed) {
+    return <CanvasFallback />;
+  }
 
   return (
-    <Canvas
-      className="h-full w-full"
-      style={{ touchAction: "none", transform: "translateZ(0)" }}
-      camera={{ fov: 38, near: 0.1, far: 240, position: [20, 40, 40] }}
-      gl={{
-        antialias: false,
-        alpha: false,
-        powerPreference: "high-performance",
-      }}
-      dpr={[1, 1.5]}
-      flat
-      onPointerMissed={() => setHoveredKey(null)}
-    >
-      <color attach="background" args={["#e9edf1"]} />
-      <fog attach="fog" args={["#e9edf1", 50, 100]} />
-      <ambientLight intensity={1.4} />
-      <directionalLight position={[14, 26, 12]} intensity={2.2} />
-      <directionalLight position={[-10, 10, -10]} intensity={0.95} color={0xbcd0e6} />
-      <OrbitCamera view={view} />
-      <FactoryScene />
-    </Canvas>
+    <div className="absolute inset-0">
+      <Canvas
+        className="h-full w-full"
+        style={{ touchAction: "none", display: "block", width: "100%", height: "100%" }}
+        camera={{ fov: 38, near: 0.1, far: 240, position: [20, 40, 40] }}
+        gl={glFactory}
+        dpr={1}
+        flat
+        resize={{ scroll: false, debounce: { scroll: 0, resize: 0 }, offsetSize: true }}
+        onCreated={({ gl }) => {
+          gl.setPixelRatio(1);
+          const canvas = gl.domElement;
+          const onLost = (event: Event) => {
+            event.preventDefault();
+            setFailed(true);
+          };
+          canvas.addEventListener("webglcontextlost", onLost, false);
+        }}
+        onPointerMissed={() => setHoveredKey(null)}
+      >
+        <color attach="background" args={["#e9edf1"]} />
+        <fog attach="fog" args={["#e9edf1", 50, 100]} />
+        <ambientLight intensity={1.4} />
+        <directionalLight position={[14, 26, 12]} intensity={2.2} />
+        <directionalLight position={[-10, 10, -10]} intensity={0.95} color={0xbcd0e6} />
+        <OrbitCamera view={view} />
+        <FactoryScene />
+      </Canvas>
+    </div>
   );
 }

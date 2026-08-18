@@ -16,7 +16,7 @@ export function RenderShowcase() {
         </div>
 
         <div className="bp-corners m-2 rounded-lg bg-bg p-2 ">
-          <div className="min-h-[280px] w-full rounded-md border border-border bg-white sm:min-h-[400px] md:h-[560px] md:min-h-0 md:overflow-hidden lg:h-[680px]">
+          <div className="min-h-[280px] w-full border border-border bg-white sm:min-h-[400px] md:h-[560px] md:min-h-0 md:overflow-hidden md:rounded-md lg:h-[680px]">
             <FactoryViewer />
           </div>
         </div>

@@ -6,6 +6,7 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  useSyncExternalStore,
   type Dispatch,
   type ReactNode,
   type SetStateAction,
@@ -36,6 +37,22 @@ export function useHover() {
   const ctx = useContext(HoverContext);
   if (!ctx) throw new Error("useHover must be used within HoverProvider");
   return ctx;
+}
+
+const LOW_GPU_QUERY = "(max-width: 767px), (pointer: coarse)";
+
+function subscribeLowGpu(onStoreChange: () => void) {
+  const mq = window.matchMedia(LOW_GPU_QUERY);
+  mq.addEventListener("change", onStoreChange);
+  return () => mq.removeEventListener("change", onStoreChange);
+}
+
+function getLowGpu() {
+  return window.matchMedia(LOW_GPU_QUERY).matches;
+}
+
+export function useLowGpu() {
+  return useSyncExternalStore(subscribeLowGpu, getLowGpu, () => false);
 }
 
 const GLOW = 0xffe8b0;
@@ -105,9 +122,11 @@ export function Edges({
   color?: THREE.ColorRepresentation;
   opacity?: number;
 }) {
+  const skip = useLowGpu();
   const ref = useRef<THREE.LineSegments>(null);
 
   useLayoutEffect(() => {
+    if (skip) return;
     const line = ref.current;
     const parent = line?.parent;
     if (!line || !parent || !("geometry" in parent) || !parent.geometry) return;
@@ -116,7 +135,9 @@ export function Edges({
     return () => {
       geo.dispose();
     };
-  }, []);
+  }, [skip]);
+
+  if (skip) return null;
 
   return (
     <lineSegments ref={ref} raycast={() => {}}>

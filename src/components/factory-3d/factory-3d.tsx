@@ -130,10 +130,10 @@ export function Factory3D() {
 
   return (
     <HoverProvider hoveredKey={hoveredKey} setHoveredKey={setHoveredKey}>
-      <div className="flex h-full min-h-0 flex-col md:relative md:overflow-hidden">
+      <div className="flex flex-col md:relative md:h-full md:overflow-hidden">
         <div
           className={cn(
-            "relative h-[280px] w-full shrink-0 [transform:translateZ(0)] sm:h-[400px] md:absolute md:inset-0 md:h-auto md:overflow-hidden",
+            "relative h-[280px] w-full shrink-0 sm:h-[400px] md:absolute md:inset-0 md:h-auto md:overflow-hidden",
             hoveredKey ? "cursor-pointer" : "cursor-default",
           )}
         >
@@ -163,7 +163,7 @@ export function Factory3D() {
             ))}
           </div>
           <p className="pointer-events-none absolute bottom-2 left-1/2 z-10 m-0 w-[calc(100%-1.5rem)] -translate-x-1/2 text-center text-[11px] tracking-wide text-[#5b6b7c] sm:bottom-3.5 sm:text-xs">
-            <span className="md:hidden">Tap an element for details</span>
+            <span className="md:hidden">Drag to orbit · pinch to zoom · tap for details</span>
             <span className="hidden md:inline">
               Drag to orbit · scroll to zoom · hover anything for details
             </span>
