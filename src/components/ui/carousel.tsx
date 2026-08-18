@@ -50,7 +50,12 @@ function Carousel({
   ...props
 }: React.ComponentProps<"div"> & CarouselProps) {
   const [carouselRef, api] = useEmblaCarousel(
-    { ...opts, axis: orientation === "horizontal" ? "x" : "y" },
+    {
+      dragThreshold: 8,
+      watchDrag: true,
+      ...opts,
+      axis: orientation === "horizontal" ? "x" : "y",
+    },
     plugins
   );
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
@@ -76,7 +81,8 @@ function Carousel({
     api.on("reInit", onSelect);
     api.on("select", onSelect);
     return () => {
-      api?.off("select", onSelect);
+      api.off("select", onSelect);
+      api.off("reInit", onSelect);
     };
   }, [api, onSelect]);
 
@@ -108,7 +114,7 @@ function Carousel({
 function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
   const { carouselRef, orientation } = useCarousel();
   return (
-    <div ref={carouselRef} className="overflow-hidden">
+    <div ref={carouselRef} className="overflow-hidden touch-pan-y">
       <div
         className={cn(
           "flex",
@@ -138,13 +144,14 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function CarouselPrevious({ className, ...props }: React.ComponentProps<typeof Button>) {
-  const { scrollPrev, canScrollPrev } = useCarousel();
+  const { scrollPrev, canScrollPrev, opts } = useCarousel();
+  const looping = Boolean(opts?.loop);
   return (
     <Button
       variant="outline"
       size="icon"
       className={cn("rounded-full border-primary/30 text-primary hover:bg-primary-tint", className)}
-      disabled={!canScrollPrev}
+      disabled={looping ? false : !canScrollPrev}
       onClick={scrollPrev}
       aria-label="Previous project"
       {...props}
@@ -155,13 +162,14 @@ function CarouselPrevious({ className, ...props }: React.ComponentProps<typeof B
 }
 
 function CarouselNext({ className, ...props }: React.ComponentProps<typeof Button>) {
-  const { scrollNext, canScrollNext } = useCarousel();
+  const { scrollNext, canScrollNext, opts } = useCarousel();
+  const looping = Boolean(opts?.loop);
   return (
     <Button
       variant="outline"
       size="icon"
       className={cn("rounded-full border-primary/30 text-primary hover:bg-primary-tint", className)}
-      disabled={!canScrollNext}
+      disabled={looping ? false : !canScrollNext}
       onClick={scrollNext}
       aria-label="Next project"
       {...props}

@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import * as THREE from "three";
 import type { CameraView } from "./layout";
 import { ISO_VIEW, LOOK_AT, TOP_VIEW } from "./layout";
 import { Interior } from "./parts/interior";
@@ -15,54 +14,6 @@ import { useHover } from "./primitives";
 
 const MIN_RADIUS = 14;
 const MAX_RADIUS = 96;
-
-function isIOS() {
-  if (typeof navigator === "undefined") return false;
-  return (
-    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
-  );
-}
-
-function createFactoryRenderer(defaultProps: THREE.WebGLRendererParameters) {
-  const canvas = defaultProps.canvas as HTMLCanvasElement;
-  const ios = isIOS();
-  const attrs: WebGLContextAttributes = {
-    antialias: false,
-    alpha: true,
-    depth: true,
-    stencil: false,
-    powerPreference: "default",
-    failIfMajorPerformanceCaveat: false,
-    preserveDrawingBuffer: ios,
-  };
-
-  let context: RenderingContext | null = null;
-  if (ios) {
-    context =
-      canvas.getContext("webgl", attrs) ||
-      canvas.getContext("experimental-webgl", attrs);
-  } else {
-    context =
-      canvas.getContext("webgl2", attrs) ||
-      canvas.getContext("webgl", attrs) ||
-      canvas.getContext("experimental-webgl", attrs);
-  }
-
-  if (!context) {
-    throw new Error("WebGL is not available");
-  }
-
-  return new THREE.WebGLRenderer({
-    ...defaultProps,
-    canvas,
-    context: context as WebGLRenderingContext,
-    antialias: false,
-    alpha: true,
-    powerPreference: "default",
-    stencil: false,
-  });
-}
 
 function OrbitCamera({ view }: { view: CameraView }) {
   const { camera, gl } = useThree();
@@ -225,17 +176,6 @@ function CanvasFallback() {
 export function FactoryCanvas({ view }: { view: CameraView }) {
   const { setHoveredKey } = useHover();
   const [failed, setFailed] = useState(false);
-  const failRef = useRef(() => {});
-  failRef.current = () => setFailed(true);
-
-  const glFactory = useCallback((props: THREE.WebGLRendererParameters) => {
-    try {
-      return createFactoryRenderer(props);
-    } catch {
-      failRef.current();
-      throw new Error("WebGL is not available");
-    }
-  }, []);
 
   if (failed) {
     return <CanvasFallback />;
@@ -247,7 +187,14 @@ export function FactoryCanvas({ view }: { view: CameraView }) {
         className="h-full w-full"
         style={{ touchAction: "none", display: "block", width: "100%", height: "100%" }}
         camera={{ fov: 38, near: 0.1, far: 240, position: [20, 40, 40] }}
-        gl={glFactory}
+        gl={{
+          antialias: false,
+          alpha: true,
+          powerPreference: "default",
+          failIfMajorPerformanceCaveat: false,
+          stencil: false,
+          preserveDrawingBuffer: true,
+        }}
         dpr={1}
         flat
         resize={{ scroll: false, debounce: { scroll: 0, resize: 0 }, offsetSize: true }}

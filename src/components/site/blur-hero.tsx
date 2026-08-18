@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 import {
@@ -21,6 +21,60 @@ const COVERS = [
 ] as const;
 
 const AUTOPLAY_MS = 5500;
+const TAP_PX = 8;
+
+function HeroThumb({
+  item,
+  active,
+  onSelect,
+}: {
+  item: (typeof COVERS)[number];
+  active: boolean;
+  onSelect: () => void;
+}) {
+  const origin = useRef<{ x: number; y: number } | null>(null);
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={`Show ${item.alt}`}
+      aria-current={active}
+      onPointerDown={(e) => {
+        origin.current = { x: e.clientX, y: e.clientY };
+      }}
+      onPointerUp={(e) => {
+        const start = origin.current;
+        origin.current = null;
+        if (!start) return;
+        const moved = Math.hypot(e.clientX - start.x, e.clientY - start.y);
+        if (moved < TAP_PX) onSelect();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
+      className={cn(
+        "relative aspect-[4/3] w-full cursor-pointer overflow-hidden rounded-lg bp-corners border-2 shadow-lg transition duration-500 ease-out",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary",
+        active
+          ? "border-secondary shadow-xl"
+          : "border-white hover:border-secondary hover:shadow-xl",
+      )}
+    >
+      <Image
+        src={item.src}
+        alt={item.alt}
+        fill
+        sizes="(min-width: 1024px) 224px, (min-width: 768px) 192px, (min-width: 640px) 112px, 76px"
+        className="pointer-events-none object-cover"
+        draggable={false}
+      />
+    </div>
+  );
+}
 
 export function BlurHero() {
   const [api, setApi] = useState<CarouselApi>();
@@ -108,7 +162,7 @@ export function BlurHero() {
 
         <div className="absolute bottom-0 left-0 right-0 z-20 translate-y-1/2 px-4">
           <Carousel
-            opts={{ loop: true, align: "center", duration: 40 }}
+            opts={{ loop: true, align: "center", duration: 40, dragThreshold: 8 }}
             setApi={setApi}
             className="mx-auto w-full max-w-5xl"
             aria-label="Facility gallery"
@@ -119,27 +173,11 @@ export function BlurHero() {
                   key={item.src}
                   className="basis-[4.75rem] pl-2 sm:basis-28 md:basis-48 md:pl-4 lg:basis-56"
                 >
-                  <button
-                    type="button"
-                    onClick={() => api?.scrollTo(index)}
-                    aria-label={`Show ${item.alt}`}
-                    aria-current={index === active}
-                    className={cn(
-                      "relative aspect-[4/3] w-full overflow-hidden rounded-lg bp-corners border-2 shadow-lg transition duration-500 ease-out",
-                      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary",
-                      index === active
-                        ? "border-secondary shadow-xl"
-                        : "border-white hover:border-secondary hover:shadow-xl",
-                    )}
-                  >
-                    <Image
-                      src={item.src}
-                      alt={item.alt}
-                      fill
-                      sizes="(min-width: 1024px) 224px, (min-width: 768px) 192px, (min-width: 640px) 112px, 76px"
-                      className="object-cover"
-                    />
-                  </button>
+                  <HeroThumb
+                    item={item}
+                    active={index === active}
+                    onSelect={() => api?.scrollTo(index)}
+                  />
                 </CarouselItem>
               ))}
             </CarouselContent>
