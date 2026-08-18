@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 const WHATSAPP_NUMBER = "6596664158"; // +65 9666 4158
 const WHATSAPP_MESSAGE = "Hi, I'd like to find out more about your engineering services.";
 const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
@@ -42,7 +40,7 @@ const DETAILS = [
 export function Contact() {
   return (
     <section id="contact" className="bp-grid bp-corners px-4 py-10 md:px-6 md:py-16">
-        <div className="flex flex-col bp-corners mx-auto max-w-xl rounded-lg bg-[color-mix(in_srgb,var(--color-build)_6%,white)] p-5 md:p-8">
+        <div className="flex flex-col bp-corners mx-auto max-w-xl rounded-lg bg-[#f1f9f4] p-5 md:p-8">
           <p className="font-mono text-xs uppercase tracking-widest text-primary md:tracking-[0.2em]">
             Contact
           </p>

@@ -111,9 +111,14 @@ export function FactoryCanvas({ view }: { view: CameraView }) {
   return (
     <Canvas
       className="h-full w-full"
+      style={{ touchAction: "none", transform: "translateZ(0)" }}
       camera={{ fov: 38, near: 0.1, far: 240, position: [20, 40, 40] }}
-      gl={{ antialias: true }}
-      dpr={[1, 2]}
+      gl={{
+        antialias: false,
+        alpha: false,
+        powerPreference: "high-performance",
+      }}
+      dpr={[1, 1.5]}
       flat
       onPointerMissed={() => setHoveredKey(null)}
     >

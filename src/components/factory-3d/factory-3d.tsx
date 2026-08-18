@@ -133,7 +133,7 @@ export function Factory3D() {
       <div className="flex h-full min-h-0 flex-col md:relative md:overflow-hidden">
         <div
           className={cn(
-            "relative h-[280px] w-full shrink-0 overflow-hidden sm:h-[400px] md:absolute md:inset-0 md:h-auto",
+            "relative h-[280px] w-full shrink-0 [transform:translateZ(0)] sm:h-[400px] md:absolute md:inset-0 md:h-auto md:overflow-hidden",
             hoveredKey ? "cursor-pointer" : "cursor-default",
           )}
         >
