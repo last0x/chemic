@@ -49,7 +49,7 @@ export const TOTE_Z = 7.5;
 export const GAS_Z = [-5.5, 1, 6] as const;
 
 export const LOOK_AT: [number, number, number] = [-1, 2.6, -1];
-export const ISO_VIEW = { theta: Math.PI * 0.26, phi: Math.PI * 0.38, radius: 62 };
-export const TOP_VIEW = { theta: 0.001, phi: 0.15, radius: 62 };
+export const ISO_VIEW = { theta: Math.PI * 0.26, phi: Math.PI * 0.38, radius: 18 };
+export const TOP_VIEW = { theta: 0.001, phi: 0.15, radius: 24 };
 
 export type CameraView = "iso" | "top";

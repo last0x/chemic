@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 
-type Tab = "engineering" | "wifi";
+type Tab = "engineering" | "home";
 
 const tabClass = (active: boolean) =>
   `rounded-sm border px-3 py-1.5 hover:text-primary ${
@@ -32,12 +32,16 @@ export function Header({ active = "engineering" }: { active?: Tab }) {
               className="h-10 w-10 shrink-0 md:h-12 md:w-12"
             />
 
-        <nav className="flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-ink-soft md:gap-6 md:text-sm">
+        <nav
+          className={`flex items-center gap-3 text-xs uppercase tracking-widest text-ink-soft md:gap-6 md:text-sm ${
+            active === "home" ? "font-medium" : "font-mono"
+          }`}
+        >
           <Link href="/" className={tabClass(active === "engineering")}>
             ENGINEERING
           </Link>
-          <Link href="/wifi" className={tabClass(active === "wifi")}>
-            WIFI
+          <Link href="/home" className={tabClass(active === "home")}>
+            HOME
           </Link>
         </nav>
       </div>

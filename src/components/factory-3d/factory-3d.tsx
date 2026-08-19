@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type Dispatch, type SetStateAction } from "react";
-import { FactoryCanvas } from "./canvas";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import {
   FACTORY_INFO,
   LEGEND,
@@ -11,6 +12,11 @@ import {
 import type { CameraView } from "./layout";
 import { HoverProvider } from "./primitives";
 import { cn } from "@/lib/utils";
+
+const FactoryCanvas = dynamic(
+  () => import("./canvas").then((m) => m.FactoryCanvas),
+  { ssr: false },
+);
 
 function LegendItems({
   hoveredKey,
@@ -71,9 +77,11 @@ function LegendItems({
 function InfoPanel({
   info,
   compact,
+  still,
 }: {
   info: FactoryInfo | null;
   compact?: boolean;
+  still?: boolean;
 }) {
   return (
     <>
@@ -112,7 +120,9 @@ function InfoPanel({
           info.desc
         ) : (
           <>
-            <span className="md:hidden">Tap an element for details</span>
+            <span className="md:hidden">
+              {still ? "Tap a label below for details" : "Tap an element for details"}
+            </span>
             <span className="hidden md:inline">
               Hover over any element to learn more
             </span>
@@ -123,7 +133,7 @@ function InfoPanel({
   );
 }
 
-export function Factory3D() {
+export function Factory3D({ still = false }: { still?: boolean }) {
   const [view, setView] = useState<CameraView>("iso");
   const [hoveredKey, setHoveredKey] = useState<FactoryKey | null>(null);
   const info = hoveredKey ? FACTORY_INFO[hoveredKey] : null;
@@ -137,41 +147,60 @@ export function Factory3D() {
             hoveredKey ? "cursor-pointer" : "cursor-default",
           )}
         >
-          <FactoryCanvas view={view} />
+          {still ? (
+            <Image
+              src="/ios-3d-static.png"
+              alt="Electroplating bay"
+              fill
+              className="object-contain bg-[#e9edf1]"
+              sizes="100vw"
+              priority
+            />
+          ) : (
+            <FactoryCanvas view={view} />
+          )}
 
-          <div className="absolute top-3 left-1/2 z-10 flex -translate-x-1/2 gap-2 sm:top-4">
-            {(
-              [
-                { id: "iso", short: "Iso", label: "Isometric" },
-                { id: "top", short: "Plan", label: "Plan view" },
-              ] as const
-            ).map((btn) => (
-              <button
-                key={btn.id}
-                type="button"
-                onClick={() => setView(btn.id)}
-                className={cn(
-                  "cursor-pointer rounded-md border px-2.5 py-[7px] text-xs tracking-wide transition-all sm:px-3",
-                  view === btn.id
-                    ? "border-[#3d8bd4] bg-[#1b2740] text-[#7fc4ff]"
-                    : "border-[#263042] bg-[#121826] text-[#8fa3b8] hover:border-[#3a4a5f] hover:text-[#e2ecf5]",
-                )}
-              >
-                <span className="sm:hidden">{btn.short}</span>
-                <span className="hidden sm:inline">{btn.label}</span>
-              </button>
-            ))}
-          </div>
+          {!still && (
+            <div className="absolute top-3 left-1/2 z-10 flex -translate-x-1/2 gap-2 sm:top-4">
+              {(
+                [
+                  { id: "iso", short: "Iso", label: "Isometric" },
+                  { id: "top", short: "Plan", label: "Plan view" },
+                ] as const
+              ).map((btn) => (
+                <button
+                  key={btn.id}
+                  type="button"
+                  onClick={() => setView(btn.id)}
+                  className={cn(
+                    "cursor-pointer rounded-md border px-2.5 py-[7px] text-xs tracking-wide transition-all sm:px-3",
+                    view === btn.id
+                      ? "border-[#3d8bd4] bg-[#1b2740] text-[#7fc4ff]"
+                      : "border-[#263042] bg-[#121826] text-[#8fa3b8] hover:border-[#3a4a5f] hover:text-[#e2ecf5]",
+                  )}
+                >
+                  <span className="sm:hidden">{btn.short}</span>
+                  <span className="hidden sm:inline">{btn.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
           <p className="pointer-events-none absolute bottom-2 left-1/2 z-10 m-0 w-[calc(100%-1.5rem)] -translate-x-1/2 text-center text-[11px] tracking-wide text-[#5b6b7c] sm:bottom-3.5 sm:text-xs">
-            <span className="md:hidden">Drag to orbit · pinch to zoom · tap for details</span>
-            <span className="hidden md:inline">
-              Drag to orbit · scroll to zoom · hover anything for details
-            </span>
+            {still ? (
+              <span>Tap a label below for details</span>
+            ) : (
+              <>
+                <span className="md:hidden">Drag to orbit · pinch to zoom · tap for details</span>
+                <span className="hidden md:inline">
+                  Drag to orbit · scroll to zoom · hover anything for details
+                </span>
+              </>
+            )}
           </p>
         </div>
 
         <div className="space-y-4 border-t border-border px-4 py-4 md:hidden">
-          <InfoPanel info={info} compact />
+          <InfoPanel info={info} compact still={still} />
           <div>
             <p className="m-0 mb-2 text-[11px] uppercase tracking-[0.08em] text-primary">
               Facility overview
@@ -184,7 +213,7 @@ export function Factory3D() {
           </div>
         </div>
 
-        <aside className="pointer-events-auto absolute inset-y-0 left-0 z-10 hidden w-[220px] min-h-0 flex-col overflow-y-auto bg-transparent px-3 py-4 text-ink md:flex">
+        <aside className="no-scrollbar pointer-events-auto absolute inset-y-0 left-0 z-10 hidden w-[220px] min-h-0 flex-col overflow-y-auto bg-transparent px-3 py-4 text-ink md:flex">
           <p className="m-0 mb-3 px-1 text-[11px] uppercase tracking-[0.08em] text-primary">
             Facility overview
           </p>
@@ -195,7 +224,7 @@ export function Factory3D() {
           />
         </aside>
 
-        <aside className="pointer-events-auto absolute inset-y-0 right-0 z-10 hidden w-[280px] min-h-0 overflow-y-auto bg-transparent px-5 py-[22px] text-ink md:block">
+        <aside className="no-scrollbar pointer-events-auto absolute inset-y-0 right-0 z-10 hidden w-[280px] min-h-0 overflow-y-auto bg-transparent px-5 py-[22px] text-ink md:block">
           <InfoPanel info={info} />
         </aside>
       </div>

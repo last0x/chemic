@@ -8,17 +8,29 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const PROJECTS = [
-  { src: "/projects/manual-plating-line-construction.jpg", alt: "Manual plating line construction", tag: "Line plating", title: "Construction of a greenfield manual plating line" },
-  { src: "/projects/customized-structure.jpeg", alt: "Customized structure", tag: "Fabrication", title: "Fabrication of customized motor rack on attached tank" },
-  { src: "/projects/pre-raised-scrubber.jpg", alt: "Pre-raised scrubber", tag: "Water treatment", title: "Build and installation of scrubber system for water treatment" },
-  { src: "/projects/reinstatement-of-factory.jpg", alt: "Reinstatement of factory", tag: "Line plating", title: "Dismantle and reinstatement of a facility" },
-  { src: "/projects/spray-booth.jpg", alt: "Spray booth", tag: "Customized process tank", title: "Customized spray booths for industrial safety purposes" },
-  { src: "/projects/mechanical-arm.jpg", alt: "Mechanical arm", tag: "Machinery", title: "Build and installation of mechanical arm for automated plating line" },
+  {
+    src: "/home/living_room_ceiling.png",
+    alt: "Living room with ceiling network",
+    tag: "Ceiling network",
+    title: "Whole-home Wi-Fi without visible clutter",
+  },
+  {
+    src: "/home/gamer_wall.png",
+    alt: "Work and play room with wired desk",
+    tag: "Work / play",
+    title: "Wired desk, wireless rooms",
+  },
+  {
+    src: "/home/outdoor-ceiling.png",
+    alt: "Carport and outdoor patio with ceiling coverage",
+    tag: "Outdoor + EV",
+    title: "Coverage that reaches the carport and patio",
+  },
 ];
 
 const COUNT = PROJECTS.length;
 
-export function Projects() {
+export function HomeProjects() {
   const [start, setStart] = useState(0);
   const visible = [0, 1, 2].map((offset) => {
     const index = (start + offset) % COUNT;
@@ -30,17 +42,13 @@ export function Projects() {
   };
 
   return (
-    <section id="projects" className="bp-grid mx-auto bg-gray-100 px-4 py-10 md:px-6 md:py-16">
+    <section id="projects" className="bg-transparent px-4 py-10 md:px-6 md:py-16">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-10 flex max-w-6xl flex-wrap items-end justify-between gap-6">
-          <div>
-            <p className="font-mono text-xs uppercase tracking-widest text-primary md:tracking-[0.2em]">
-              What we did
-            </p>
-            <h2 className="mt-3 font-serif text-2xl leading-snug tracking-tight text-ink sm:text-3xl md:text-5xl">
-              Selected Projects
-            </h2>
-          </div>
+        <div className="mb-10">
+          <p className="text-xs font-medium tracking-wide text-primary">What we did</p>
+          <h2 className="font-display mt-3 text-2xl leading-snug tracking-tight text-ink sm:text-3xl md:text-5xl">
+            Selected Projects
+          </h2>
         </div>
 
         <ul
@@ -55,8 +63,8 @@ export function Projects() {
                 offset === 2 && "hidden md:block",
               )}
             >
-              <article className="group m-2 flex h-full flex-col rounded-lg bg-bg p-2 shadow-sm bp-corners">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-md">
+              <article className="group m-2 flex h-full flex-col rounded-2xl bg-surface p-2 shadow-sm">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
                   <Image
                     src={project.src}
                     alt={project.alt}
@@ -66,10 +74,10 @@ export function Projects() {
                     draggable={false}
                   />
                 </div>
-                <p className="mt-4 font-mono text-[11px] uppercase tracking-widest text-secondary">
+                <p className="mt-4 text-[11px] font-medium tracking-wide text-secondary">
                   {project.tag}
                 </p>
-                <h3 className="mt-1 font-display text-xl tracking-tight text-ink group-hover:text-primary">
+                <h3 className="font-display mt-1 text-xl tracking-tight text-ink group-hover:text-primary">
                   {project.title}
                 </h3>
               </article>
@@ -108,11 +116,11 @@ export function Projects() {
                   aria-label={project.title}
                   aria-current={start === index}
                   className={cn(
-                    "relative h-11 w-11 overflow-hidden rounded-md border-2 transition",
-                    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary",
+                    "relative h-11 w-11 overflow-hidden rounded-lg border-2 transition",
+                    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                     start === index
-                      ? "border-secondary"
-                      : "border-white hover:border-secondary",
+                      ? "border-primary"
+                      : "border-white hover:border-primary",
                   )}
                 >
                   <Image

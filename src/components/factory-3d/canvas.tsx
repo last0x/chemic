@@ -12,8 +12,14 @@ import { Tanks } from "./parts/tanks";
 import { Walkway } from "./parts/walkway";
 import { useHover } from "./primitives";
 
-const MIN_RADIUS = 14;
+const MIN_RADIUS = 8;
 const MAX_RADIUS = 96;
+
+const ISO_POS: [number, number, number] = [
+  ISO_VIEW.radius * Math.sin(ISO_VIEW.phi) * Math.sin(ISO_VIEW.theta),
+  ISO_VIEW.radius * Math.cos(ISO_VIEW.phi),
+  ISO_VIEW.radius * Math.sin(ISO_VIEW.phi) * Math.cos(ISO_VIEW.theta),
+];
 
 function OrbitCamera({ view }: { view: CameraView }) {
   const { camera, gl } = useThree();
@@ -186,7 +192,7 @@ export function FactoryCanvas({ view }: { view: CameraView }) {
       <Canvas
         className="h-full w-full"
         style={{ touchAction: "none", display: "block", width: "100%", height: "100%" }}
-        camera={{ fov: 38, near: 0.1, far: 240, position: [20, 40, 40] }}
+        camera={{ fov: 38, near: 0.1, far: 240, position: ISO_POS }}
         gl={{
           antialias: false,
           alpha: true,

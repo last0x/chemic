@@ -1,8 +1,15 @@
+import { cn } from "@/lib/utils";
+
 const WHATSAPP_NUMBER = "6596664158"; // +65 9666 4158
-const WHATSAPP_MESSAGE = "Hi, I'd like to find out more about your engineering services.";
-const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-  WHATSAPP_MESSAGE
-)}`;
+
+const WHATSAPP_MESSAGES = {
+  engineering: "Hi, I'd like to find out more about your engineering services.",
+  home: "Hi, I'd like to find out more about Chemic Home networking and smart home.",
+} as const;
+
+function whatsappHref(variant: keyof typeof WHATSAPP_MESSAGES) {
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGES[variant])}`;
+}
 
 function WhatsAppMark({ className }: { className?: string }) {
   return (
@@ -25,63 +32,88 @@ const DETAILS = [
   },
   {
     label: "Call",
-    value: (
-      <>
-        +65 6747 3035
-      </>
-    ),
+    value: <>+65 6747 3035</>,
   },
   {
     label: "Email",
-    value: <a href="mailto:chemic@singnet.com.sg" className="hover:text-primary">chemic@singnet.com.sg</a>,
+    value: (
+      <a href="mailto:contact@chemic.sg" className="hover:text-primary">
+        contact@chemic.sg
+      </a>
+    ),
   },
 ];
 
-export function Contact() {
+export function Contact({
+  variant = "engineering",
+}: {
+  variant?: "engineering" | "home";
+}) {
+  const isHome = variant === "home";
+
   return (
-    <section id="contact" className="bp-grid bp-corners px-4 py-10 md:px-6 md:py-16">
-        <div className="flex flex-col bp-corners mx-auto max-w-xl rounded-lg bg-[#f1f9f4] p-5 md:p-8">
-          <p className="font-mono text-xs uppercase tracking-widest text-primary md:tracking-[0.2em]">
-            Contact
-          </p>
-          <h2 className="mt-3 font-serif text-2xl leading-snug tracking-tight text-ink sm:text-3xl md:text-5xl">
-            Let&apos;s talk about your line
-          </h2>
+    <section
+      id="contact"
+      className={cn(
+        "px-4 py-10 md:px-6 md:py-16",
+        isHome ? "bg-surface" : "bp-grid bp-corners",
+      )}
+    >
+      <div
+        className={cn(
+          "mx-auto flex max-w-xl flex-col p-5 md:p-8",
+          isHome
+            ? "rounded-2xl bg-[#f1f9f4]"
+            : "bp-corners rounded-lg bg-[#f1f9f4]",
+        )}
+      >
+        <p
+          className={cn(
+            "text-xs tracking-widest text-primary md:tracking-[0.2em]",
+            isHome ? "font-medium uppercase" : "font-mono uppercase",
+          )}
+        >
+          Contact
+        </p>
+        <h2
+          className={cn(
+            "mt-3 text-2xl leading-snug tracking-tight text-ink sm:text-3xl md:text-5xl",
+            isHome ? "font-display" : "font-serif",
+          )}
+        >
+          Let&apos;s talk about {isHome ? "your home" : "your line"}
+        </h2>
 
-          <dl className="mt-10 space-y-6 border-t border-border pt-8">
-            {DETAILS.map((d) => (
-              <div key={d.label} className="flex gap-6">
-                <dt className="w-24 shrink-0 font-mono text-xs uppercase tracking-widest text-ink-soft">
-                  {d.label}
-                </dt>
-                <dd className="text-sm leading-relaxed text-ink">{d.value}</dd>
-              </div>
-            ))}
-          </dl>
+        <dl className="mt-10 space-y-6 border-t border-border pt-8">
+          {DETAILS.map((d) => (
+            <div key={d.label} className="flex gap-6">
+              <dt
+                className={cn(
+                  "w-24 shrink-0 text-xs uppercase tracking-widest text-ink-soft",
+                  isHome ? "font-medium" : "font-mono",
+                )}
+              >
+                {d.label}
+              </dt>
+              <dd className="text-sm leading-relaxed text-ink">{d.value}</dd>
+            </div>
+          ))}
+        </dl>
 
-          
-          <div>
-
+        <div>
           <a
-            href={WHATSAPP_HREF}
+            href={whatsappHref(variant)}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-8 inline-flex h-auto min-h-12 w-full items-center justify-center gap-2 whitespace-normal rounded-md bg-build px-4 py-3 text-center font-mono text-xs uppercase tracking-widest text-white transition-opacity hover:opacity-90 sm:w-auto sm:px-6"
+            className={cn(
+              "mt-8 inline-flex h-auto min-h-12 w-full items-center justify-center gap-2 whitespace-normal rounded-md bg-build px-4 py-3 text-center text-xs uppercase tracking-widest text-white transition-opacity hover:opacity-90 sm:w-auto sm:px-6",
+              isHome ? "rounded-full font-medium" : "font-mono",
+            )}
           >
             <WhatsAppMark className="h-4 w-4" />
-            Chat immediately on WhatsApp +65 9666 4158
+            Chat immediately on WhatsApp
           </a>
         </div>
-
-      {/* Add chemic info */}
-      
-      {/* <div className="flex flex-col justify-between rounded-lg border-2 border-build/40 bg-[color-mix(in_srgb,var(--color-build)_6%,white)] p-8">
-      
-
-      <Image src="/chemic-arches.svg" alt="Chemic Engineering" width={100} height={100} />
-      </div> */}
-
-
       </div>
     </section>
   );
