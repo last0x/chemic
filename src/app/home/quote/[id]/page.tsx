@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
 import { WaterfallComparison } from "@/components/quote/waterfall-comparison";
+import { QuoteAppendix } from "@/components/quote/quote-appendix";
 import { getQuote, quoteIds } from "@/components/quote/quotes";
 
 type PageProps = {
@@ -49,6 +50,7 @@ export default async function QuoteDetailPage({ params }: PageProps) {
             <div className="mt-10">
               <WaterfallComparison charts={quote.charts} />
             </div>
+            {quote.appendix ? <QuoteAppendix items={quote.appendix} /> : null}
           </div>
         </section>
       </main>

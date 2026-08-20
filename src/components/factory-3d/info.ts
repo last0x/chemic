@@ -1,7 +1,8 @@
 export type FactoryKey =
-  | "floor"
+  | "default"
+| "floor"
   // | "wall"
-  | "manifold"
+  // | "manifold"
   | "wastewater"
   | "exhaust"
   | "scrubber"
@@ -21,6 +22,7 @@ export type FactoryInfo = {
   title: string;
   color: string;
   desc: string;
+  image: string;
   services: [string, string, string];
 };
 
@@ -31,10 +33,22 @@ export const SERVICE_TYPES = [
 ] as const;
 
 export const FACTORY_INFO: Record<FactoryKey, FactoryInfo> = {
+  default: {
+    title: "Electroplating bay",
+    color: "#94a3b8",
+    desc: "Hover over any element to learn more",
+    image: "/items/main.jpg",
+    services: [
+      "",
+      "",
+      "",
+    ],
+  },
   floor: {
     title: "Process floor",
     color: "#94a3b8",
     desc: "Epoxy or fiberglass layered concrete flooring for waterproofing",
+    image: "/items/process-floor.jpg",
     services: [
       "Epoxy flooring and drainage installation",
       "Resurfacing and crack repair",
@@ -51,20 +65,22 @@ export const FACTORY_INFO: Record<FactoryKey, FactoryInfo> = {
   //     "Wall demolition and rebuild",
   //   ],
   // },
-  manifold: {
-    title: "Transfer manifold",
-    color: "#2563eb",
-    desc: "Low-level header pipe below the walkway, distributing pumped chemistry and rinse water to each station.",
-    services: [
-      "Manifold fabrication and installation",
-      "Valve servicing and leak repair",
-      "Manifold line replacement",
-    ],
-  },
+  // manifold: {
+  //   title: "Transfer manifold",
+  //   color: "#2563eb",
+  //   desc: "Low-level header pipe below the walkway, distributing pumped chemistry and rinse water to each station.",
+  //   image: "/items/manifold.jpg",
+  //   services: [
+  //     "Manifold fabrication and installation",
+  //     "Valve servicing and leak repair",
+  //     "Manifold line replacement",
+  //   ],
+  // },
   wastewater: {
     title: "Wastewater piping",
     color: "#0e7490",
     desc: "Tank discharge is pumped through these pipes out for water treatment.",
+    image: "/items/wastewater.jpg",
     services: [
       "Wastewater line installation",
       "Pipe cleaning and pump servicing",
@@ -75,6 +91,7 @@ export const FACTORY_INFO: Record<FactoryKey, FactoryInfo> = {
     title: "Exhaust piping",
     color: "#f59e0b",
     desc: "Channel gas released during the plating process out to the scrubber tank.",
+    image: "/items/exhaust.jpg",
     services: [
       "Header ducting fabrication and install",
       "Duct cleaning and seal replacement",
@@ -85,6 +102,7 @@ export const FACTORY_INFO: Record<FactoryKey, FactoryInfo> = {
     title: "Scrubber tank",
     color: "#10b981",
     desc: "Receives and treats gas before it is vents outside",
+    image: "/items/scrubber.jpg",
     services: [
       "Scrubber tank install and packing",
       "Media replacement and cleaning",
@@ -95,6 +113,7 @@ export const FACTORY_INFO: Record<FactoryKey, FactoryInfo> = {
     title: "Raised walkway, stairs & railings",
     color: "#ea580c",
     desc: "Safety walkway on a raised platform",
+    image: "/items/walkway.jpg",
     services: [
       "Walkway and railing installation",
       "Grating and rail repair",
@@ -105,6 +124,7 @@ export const FACTORY_INFO: Record<FactoryKey, FactoryInfo> = {
     title: "Wall control panel",
     color: "#dc2626",
     desc: "Distribution and control of power across the facility  ",
+    image: "/items/control-panel.jpg",
     services: [
       "Panel wiring and commissioning",
       "Circuit testing and socket replacement",
@@ -115,6 +135,7 @@ export const FACTORY_INFO: Record<FactoryKey, FactoryInfo> = {
     title: "Rectifier",
     color: "#a8a29e",
     desc: "Electricity conversion to meet equipment needs",
+    image: "/items/rectifier.jpg",
     services: [
       "Rectifier installation and commissioning",
       "Output calibration and servicing",
@@ -125,6 +146,7 @@ export const FACTORY_INFO: Record<FactoryKey, FactoryInfo> = {
     title: "Overhead gantry hoist",
     color: "#facc15",
     desc: "Assists in the loading and unloading of plating trays",
+    image: "/items/hoist.jpg",
     services: [
       "Gantry installation and wiring",
       "Motor and hoist replacement",
@@ -135,6 +157,7 @@ export const FACTORY_INFO: Record<FactoryKey, FactoryInfo> = {
     title: "Compressors",
     color: "#38bdf8",
     desc: "Provide airflow ventilation across the facility",
+    image: "/items/compressor.jpg",
     services: [
       "Chiller installation and piping",
       "Refrigerant service and filter changes",
@@ -145,6 +168,7 @@ export const FACTORY_INFO: Record<FactoryKey, FactoryInfo> = {
     title: "Reinforced chemical tanks",
     color: "#ca8a04",
     desc: "Backup tannks for chemical processing and storage",
+    image: "/items/outdoor-mixing-tank.jpg",
     services: [
       "Tote bay and cage fabrication",
       "Cage inspection and bladder swap",
@@ -165,6 +189,7 @@ export const FACTORY_INFO: Record<FactoryKey, FactoryInfo> = {
     title: "Vent ducts",
     color: "#06b6d4",
     desc: "Channel fresh air from outside into facility",
+    image: "/items/ventilation-fan.jpg",
     services: [
       "Duct fabrication and vent install",
       "Filter changes and airflow balancing",
@@ -175,7 +200,8 @@ export const FACTORY_INFO: Record<FactoryKey, FactoryInfo> = {
     title: "Treatment tank",
     color: "#ec4899",
     desc: "Treatment tank for chemical processing",
-    services: [
+    image: "/items/treatment-tanks.jpg",
+      services: [
       "Tank fabrication and cover install",
       "Chemistry dosing and pump service",
       "Tank relining and cover swap",
@@ -205,6 +231,7 @@ export const FACTORY_INFO: Record<FactoryKey, FactoryInfo> = {
     title: "Rinse tank",
     color: "#0ea5e9",
     desc: "Rinse tank for chemical processing",
+    image: "/items/barrel.jpg",
     services: [
       "Cascade rinse installation",
       "Flow control and conductivity checks",
@@ -216,7 +243,7 @@ export const FACTORY_INFO: Record<FactoryKey, FactoryInfo> = {
 export const LEGEND: { key: FactoryKey; label: string }[] = [
   { key: "floor", label: "Process floor" },
   // { key: "wall", label: "Enclosure walls" },
-  { key: "manifold", label: "Transfer manifold" },
+  // { key: "manifold", label: "Transfer manifold" },
   { key: "wastewater", label: "Wastewater piping" },
   { key: "exhaust", label: "Exhaust header" },
   { key: "scrubber", label: "Scrubber tank" },

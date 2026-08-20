@@ -56,7 +56,10 @@ const LEGEND_TABLE = [
 ];
 
 const NOTES = [
+  "TBD - pending site visit",
   "The above are proposed quotes based on work scope. All variable parts can be adjusted (for future implementation)",
+  "All-in cost — covers equipment wiring, app set-up and maintenance",
+  "Includes cyber-security set-up",
   "Guaranteed high, consistent speeds",
   "Hardware maintenance and servicing guarantee",
   "Future discounted pricing on smart home services",
@@ -304,8 +307,8 @@ function NotesColumn({
 
 function LegendTable() {
   return (
-    <div className="mt-8 overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
+    <div className="overflow-x-auto">
+      {/* <table className="w-full border-collapse text-sm">
         <thead>
           <tr>
             <th className="border-b border-border px-2 py-2 text-left font-mono text-xs font-medium uppercase tracking-widest text-ink-soft">
@@ -330,7 +333,7 @@ function LegendTable() {
         </tbody>
       </table>
 
-      <p className="mt-3 text-xs text-ink-soft">*TBD — pending site visit</p>
+      <p className="mt-3 text-xs text-ink-soft">*TBD — pending site visit</p> */}
 
 
 
