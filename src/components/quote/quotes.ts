@@ -58,10 +58,11 @@ const QUOTES: Record<string, Quote> = {
         totalLabel: "S$6k",
         rows: [
           { type: "header", label: "EQUIPMENT" },
+          { type: "row", label: "Wiring", variableUnits: [], note: "CCTV wiring cost covered" },
           {
             type: "row",
-            label: "PoE",
-            note: "Switches - PoE (Wifi+CCTV) + NVR (CCTV)",
+            label: "Gateway, PoE Switch & NVR",
+            note: "One-off fixed cost",
             fixed: 1500,
             fixedTooltip: "PoE (Wifi+CCTV)",
             fixedAlt: 400,
@@ -69,7 +70,7 @@ const QUOTES: Record<string, Quote> = {
           },
           {
             type: "row",
-            label: "Wifi",
+            label: "WiFi Access Point",
             note: "6 x APs across living space and rooms",
             variableUnits: units(250, [
               "Living room AP",
@@ -82,11 +83,10 @@ const QUOTES: Record<string, Quote> = {
           },
           {
             type: "row",
-            label: "CCTV",
+            label: "CCTV Cameras",
             note: "1 x CCTV at car porch",
             variableUnits: units(200, ["Camera"]),
           },
-          { type: "row", label: "Wiring", variableUnits: [], note: "CCTV wiring cost covered" },
           { type: "header", label: "MANPOWER" },
           {
             type: "row",
@@ -100,14 +100,22 @@ const QUOTES: Record<string, Quote> = {
         ],
       },
       {
-        title: "Rewire",
+        title: "+Rewire",
         totalLabel: "S$3k",
         rows: [
           { type: "header", label: "EQUIPMENT" },
-          { type: "row", label: "PoE", note: "Covered by existing rack", freeLabel: "(free)" },
           {
             type: "row",
-            label: "Wifi",
+            label: "Wiring",
+            note: "New CAT 7 or 8 cable runs + wiring costs*",
+            fixed: 300,
+            fixedTooltip: "Materials (base)",
+            variableUnits: units(1000, ["Variable (TBD)"]),
+          },
+          { type: "row", label: "Gateway, PoE Switch & NVR", note: "", freeLabel: "(free)" },
+          {
+            type: "row",
+            label: "WiFi Access Point",
             note: "4 x APs to cover outdoor spaces",
             variableUnits: units(250, [
               "Living / dining AP",
@@ -118,17 +126,9 @@ const QUOTES: Record<string, Quote> = {
           },
           {
             type: "row",
-            label: "CCTV",
+            label: "CCTV Cameras",
             note: "2 x CCTV at attic open roof terrace and car porch outdoor garden",
             variableUnits: units(250, ["Front camera", "Rear camera"]),
-          },
-          {
-            type: "row",
-            label: "Wiring",
-            note: "New CAT 7 or 8 cable runs + wiring costs*",
-            fixed: 300,
-            fixedTooltip: "Materials (base)",
-            variableUnits: units(1000, ["Variable (TBD)"]),
           },
           { type: "header", label: "MANPOWER" },
           {

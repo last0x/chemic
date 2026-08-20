@@ -30,7 +30,7 @@ const COLORS = {
 const MAX_VARIABLE_UNITS = 7;
 
 const CHART_HEIGHT = 360;
-const Y_AXIS_WIDTH = 100;
+const Y_AXIS_WIDTH = 128;
 const CHART_MARGIN = { top: 4, right: 56, left: 4, bottom: 4 };
 
 type FlatRow = {
@@ -46,9 +46,9 @@ type FlatRow = {
 };
 
 const LEGEND_TABLE = [
-  { item: "PoE", desc: "Provides power and data to the cables - 1 one-off setup with rack " },
-  { item: "Wifi", desc: "Each AP emits wifi signal in a radial pattern" },
-  { item: "CCTV", desc: "100% uptime, cloud-controlled system" },
+  { item: "Gateway & PoE Switch", desc: "Provides power and data to the cables - 1 one-off setup with rack " },
+  { item: "WiFi Access Point", desc: "Each AP emits wifi signal in a radial pattern" },
+  { item: "CCTV Cameras & NVR", desc: "100% uptime, cloud-controlled system" },
   { item: "Wiring", desc: "Up to Cat8 wires. Variable cost TBD*" },
   {
     item: "Manpower++",
@@ -133,6 +133,14 @@ function buildRows(rows: ChartSourceRow[]): FlatRow[] {
   return out;
 }
 
+function wrapAxisLabel(name: string): string[] {
+  const amp = name.indexOf(" & ");
+  if (amp > 0) {
+    return [name.slice(0, amp + 2), name.slice(amp + 3)];
+  }
+  return [name];
+}
+
 function CustomYAxisTick({
   x,
   y,
@@ -146,17 +154,23 @@ function CustomYAxisTick({
 }) {
   const row = rows.find((r) => r.name === payload?.value);
   const isHeader = Boolean(row?.isHeader);
+  const lines = wrapAxisLabel(payload?.value ?? "");
+  const lineHeight = 12;
+  const startDy = lines.length > 1 ? 4 - ((lines.length - 1) * lineHeight) / 2 : 4;
   return (
     <text
       x={x}
       y={y}
-      dy={4}
       textAnchor="end"
       fontSize={11}
       fontWeight={isHeader ? 500 : 400}
       fill={isHeader ? COLORS.ink : COLORS.muted}
     >
-      {payload?.value}
+      {lines.map((line, i) => (
+        <tspan key={line} x={x} dy={i === 0 ? startDy : lineHeight}>
+          {line}
+        </tspan>
+      ))}
     </text>
   );
 }
@@ -363,7 +377,12 @@ function NotesWithAxis({ rows }: { rows: FlatRow[] }) {
                 row.isHeader ? "font-medium text-ink" : "text-ink-soft",
               )}
             >
-              {row.name}
+              {wrapAxisLabel(row.name).map((line, i) => (
+                <span key={line}>
+                  {i > 0 ? <br /> : null}
+                  {line}
+                </span>
+              ))}
             </span>
           </div>
         ))}
@@ -458,7 +477,7 @@ export function WaterfallComparison({
     <div className="w-full">
       <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2 font-mono text-[11px] uppercase tracking-widest text-ink-soft">
         <LegendSwatch color={COLORS.blue} label="Fixed" />
-        <LegendSwatch color={COLORS.blueLight} label="Fixed (CCTV, stacked in PoE)" />
+        <LegendSwatch color={COLORS.blueLight} label="Fixed" />
         <LegendSwatch color={COLORS.orange} label="Variable (per unit)" />
         <LegendSwatch color={COLORS.total} label="Total" />
       </div>
