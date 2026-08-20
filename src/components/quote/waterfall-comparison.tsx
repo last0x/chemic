@@ -5,16 +5,13 @@ import {
   Bar,
   XAxis,
   YAxis,
-  Tooltip,
   ResponsiveContainer,
   LabelList,
   Cell,
 } from "recharts";
-import type { TooltipContentProps } from "recharts";
 
 import { cn } from "@/lib/utils";
 import {
-  variableUnitTooltip,
   variableUnitValue,
   type ChartDef,
   type ChartSourceRow,
@@ -32,6 +29,9 @@ const COLORS = {
 
 const MAX_VARIABLE_UNITS = 7;
 
+const CHART_HEIGHT = 360;
+const CHART_MARGIN = { top: 4, right: 56, left: 4, bottom: 4 };
+
 type FlatRow = {
   name: string;
   isHeader?: boolean;
@@ -41,10 +41,7 @@ type FlatRow = {
   fixedAlt: number;
   totalBar: number;
   freeLabel?: string;
-  tooltip?: string;
-  fixedTooltip?: string;
-  fixedAltTooltip?: string;
-  variableTooltips?: string[];
+  note?: string;
 };
 
 const LEGEND_TABLE = [
@@ -67,6 +64,16 @@ const NOTES = [
   "24-hour WhatsApp helpdesk",
   "Cyber-security set-up",
 ];
+
+function rowAmount(row: ChartSourceRow): number {
+  if (row.type !== "row") return 0;
+  const values = (row.variableUnits || []).map(variableUnitValue);
+  return (row.fixed || 0) + (row.fixedAlt || 0) + values.reduce((a, b) => a + b, 0);
+}
+
+function chartTotal(rows: ChartSourceRow[]): number {
+  return rows.reduce((sum, row) => sum + rowAmount(row), 0);
+}
 
 function buildRows(rows: ChartSourceRow[]): FlatRow[] {
   const out: FlatRow[] = [];
@@ -101,96 +108,25 @@ function buildRows(rows: ChartSourceRow[]): FlatRow[] {
     const values = units.map(variableUnitValue);
     const fixed = row.fixed || 0;
     const fixedAlt = row.fixedAlt || 0;
-    const rowTotal = fixed + fixedAlt + values.reduce((a, b) => a + b, 0);
 
-    const flat: FlatRow & Record<string, number | string | string[] | undefined> = {
+    const flat: FlatRow & Record<string, number | string | undefined> = {
       name: row.label,
       offset: running,
       fixed,
       fixedAlt,
       totalBar: 0,
       freeLabel: row.freeLabel || "",
-      tooltip: row.tooltip,
-      fixedTooltip: row.fixedTooltip,
-      fixedAltTooltip: row.fixedAltTooltip,
-      variableTooltips: units.map((unit) => variableUnitTooltip(unit) || ""),
+      note: row.note,
     };
     for (let i = 0; i < MAX_VARIABLE_UNITS; i++) {
       flat[`v${i}`] = values[i] || 0;
     }
 
     out.push(flat);
-    running += rowTotal;
+    running += rowAmount(row);
   });
 
   return out;
-}
-
-function tooltipLines(row: FlatRow, dataKey: string): string[] {
-  const lines: string[] = [];
-
-  if (dataKey === "fixed") {
-    lines.push(row.fixedTooltip || "Fixed");
-  } else if (dataKey === "fixedAlt") {
-    lines.push(row.fixedAltTooltip || "Fixed (CCTV)");
-  } else if (dataKey === "totalBar") {
-    lines.push(row.name);
-  } else if (dataKey === "offset") {
-    if (row.freeLabel) lines.push(row.freeLabel);
-  } else {
-    const match = /^v(\d+)$/.exec(dataKey);
-    if (match) {
-      const index = Number(match[1]);
-      const specific = row.variableTooltips?.[index];
-      if (specific) {
-        lines.push(specific);
-      } else if (row.name === "Wiring") {
-        lines.push("Variable (TBD)");
-      } else {
-        lines.push(`Variable unit ${index + 1}`);
-      }
-    }
-  }
-
-  if (row.tooltip && !lines.includes(row.tooltip)) {
-    lines.push(row.tooltip);
-  }
-  if (row.freeLabel && dataKey !== "offset" && !lines.includes(row.freeLabel)) {
-    lines.push(row.freeLabel);
-  }
-
-  return lines;
-}
-
-function CustomTooltip({
-  active,
-  payload,
-}: TooltipContentProps) {
-  if (!active || !payload?.length) return null;
-
-  const item =
-    payload.find((entry) => {
-      const key = String(entry.dataKey ?? "");
-      return key !== "offset" && Boolean(entry.value);
-    }) ?? payload[0];
-  const dataKey = String(item.dataKey ?? "");
-  const row = item.payload as FlatRow;
-  if (row.isHeader) return null;
-  if (dataKey === "offset" && !row.freeLabel) return null;
-
-  const labels = tooltipLines(row, dataKey);
-  if (!labels.length) return null;
-
-  return (
-    <div className="rounded-lg border border-border bg-surface px-3 py-2 text-xs text-ink shadow-sm">
-      <div className="mb-1 font-medium">{row.name}</div>
-      {labels.map((label) => (
-        <div key={label} className="text-ink-soft">
-          {label}
-        </div>
-      ))}
-    </div>
-  );
 }
 
 function CustomYAxisTick({
@@ -221,18 +157,32 @@ function CustomYAxisTick({
   );
 }
 
+function stackedWidth(row: FlatRow): number {
+  if (row.isTotal) return row.totalBar;
+  let width = row.offset + row.fixed + row.fixedAlt;
+  for (let i = 0; i < MAX_VARIABLE_UNITS; i++) {
+    width += Number((row as Record<string, unknown>)[`v${i}`] || 0);
+  }
+  return width;
+}
+
 function WaterfallChart({
   title,
   rows: rawRows,
   totalLabel,
   stacked,
+  xMax,
 }: {
   title: string;
   rows: ChartSourceRow[];
   totalLabel: string;
   stacked?: boolean;
+  xMax: number;
 }) {
-  const rows = buildRows(rawRows);
+  const rows = buildRows(rawRows).map((row) => ({
+    ...row,
+    scalePad: Math.max(0, xMax - stackedWidth(row)),
+  }));
 
   return (
     <div
@@ -244,15 +194,16 @@ function WaterfallChart({
       <p className="font-mono text-center text-xs font-semibold uppercase tracking-widest text-primary">
         {title}
       </p>
-      <div className="h-[360px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="flex min-w-0 gap-3">
+        <div className="min-w-0 flex-1" style={{ height: CHART_HEIGHT }}>
+          <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={rows}
             layout="vertical"
             barCategoryGap="22%"
-            margin={{ top: 4, right: 60, left: 4, bottom: 4 }}
+            margin={CHART_MARGIN}
           >
-            <XAxis type="number" hide />
+            <XAxis type="number" hide domain={[0, xMax]} />
             <YAxis
               type="category"
               dataKey="name"
@@ -261,11 +212,6 @@ function WaterfallChart({
               axisLine={false}
               tick={<CustomYAxisTick rows={rows} />}
               interval={0}
-            />
-            <Tooltip
-              cursor={{ fill: "transparent" }}
-              content={CustomTooltip}
-              shared={false}
             />
 
             <Bar dataKey="offset" stackId="a" fill="transparent" isAnimationActive={false}>
@@ -313,9 +259,45 @@ function WaterfallChart({
                 formatter={(v) => (typeof v === "number" && v ? totalLabel : "")}
               />
             </Bar>
+            <Bar dataKey="scalePad" stackId="a" fill="transparent" isAnimationActive={false} />
           </BarChart>
-        </ResponsiveContainer>
+          </ResponsiveContainer>
+        </div>
+        <NotesColumn rows={rows} stacked={stacked} />
       </div>
+    </div>
+  );
+}
+
+function NotesColumn({
+  rows,
+  stacked,
+}: {
+  rows: FlatRow[];
+  stacked?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex shrink-0 flex-col border-l border-border pl-3",
+        stacked ? "w-28" : "w-44",
+      )}
+      style={{
+        height: CHART_HEIGHT,
+        paddingTop: CHART_MARGIN.top,
+        paddingBottom: CHART_MARGIN.bottom,
+      }}
+    >
+      {rows.map((row, index) => (
+        <div
+          key={`${row.name}-${index}`}
+          className="flex min-h-0 flex-1 items-center"
+        >
+          {row.note ? (
+            <p className="text-[11px] leading-snug text-ink-soft">{row.note}</p>
+          ) : null}
+        </div>
+      ))}
     </div>
   );
 }
@@ -388,6 +370,8 @@ export function WaterfallComparison({
   charts: ChartDef[];
   stacked?: boolean;
 }) {
+  const xMax = Math.max(...charts.map((chart) => chartTotal(chart.rows)), 1);
+
   return (
     <div className="w-full">
       <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2 font-mono text-[11px] uppercase tracking-widest text-ink-soft">
@@ -410,6 +394,7 @@ export function WaterfallComparison({
             rows={chart.rows}
             totalLabel={chart.totalLabel}
             stacked={stacked}
+            xMax={xMax}
           />
         ))}
       </div>

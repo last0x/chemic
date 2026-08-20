@@ -9,7 +9,7 @@ export type CostRow = {
   fixedTooltip?: string;
   fixedAlt?: number;
   fixedAltTooltip?: string;
-  tooltip?: string;
+  note?: string;
   variableUnits?: VariableUnit[];
   freeLabel?: string;
 };
@@ -54,15 +54,16 @@ const QUOTES: Record<string, Quote> = {
           {
             type: "row",
             label: "PoE",
+            note: "Switches",
             fixed: 1500,
-            fixedTooltip: "Switch (Wifi+CCTV)",
+            fixedTooltip: "PoE (Wifi+CCTV)",
             fixedAlt: 400,
             fixedAltTooltip: "NVR (CCTV)",
           },
           {
             type: "row",
             label: "Wifi",
-            tooltip: "Existing wiring — mesh APs, more units for full coverage",
+            note: "6 x APs across living and rooms",
             variableUnits: units(250, [
               "Living room AP",
               "Kitchen AP",
@@ -70,24 +71,23 @@ const QUOTES: Record<string, Quote> = {
               "Bedroom 2 AP",
               "Bedroom 3 AP",
               "Study AP",
-              "Patio / outdoor AP",
             ]),
           },
           {
             type: "row",
             label: "CCTV",
-            tooltip: "Uses existing camera point",
-            variableUnits: units(200, ["Existing camera"]),
+            note: "1 x CCTV at car porch",
+            variableUnits: units(200, ["Camera"]),
           },
           { type: "row", label: "Wiring", variableUnits: [], freeLabel: "FREE" },
           { type: "header", label: "MANPOWER" },
           {
             type: "row",
             label: "Manpower++",
-            tooltip: "Install, app set-up, and 1-year support",
+            note: "All-in cost",
             fixed: 500,
-            fixedTooltip: "Base install",
-            variableUnits: units(1500, ["On-site labour"]),
+            fixedTooltip: "Install and set-up",
+            variableUnits: units(1000, ["On-site labour"]),
           },
           { type: "total", label: "Total" },
         ],
@@ -97,11 +97,11 @@ const QUOTES: Record<string, Quote> = {
         totalLabel: "S$3k",
         rows: [
           { type: "header", label: "EQUIPMENT" },
-          { type: "row", label: "PoE", tooltip: "Covered by existing rack", freeLabel: "(free)" },
+          { type: "row", label: "PoE", note: "Covered by existing rack", freeLabel: "(free)" },
           {
             type: "row",
             label: "Wifi",
-            tooltip: "New Cat6 to ceiling — fewer APs, stronger placement",
+            note: "New Cat6 to ceiling — fewer APs, stronger placement",
             variableUnits: units(250, [
               "Living / dining AP",
               "Bedrooms AP",
@@ -112,13 +112,13 @@ const QUOTES: Record<string, Quote> = {
           {
             type: "row",
             label: "CCTV",
-            tooltip: "New dedicated camera runs",
+            note: "New dedicated camera runs",
             variableUnits: units(250, ["Front camera", "Rear camera"]),
           },
           {
             type: "row",
             label: "Wiring",
-            tooltip: "New cable runs — final length pending site visit",
+            note: "New cable runs — final length pending site visit",
             fixed: 300,
             fixedTooltip: "Materials (base)",
             variableUnits: units(1000, ["Variable (TBD)"]),
@@ -127,7 +127,7 @@ const QUOTES: Record<string, Quote> = {
           {
             type: "row",
             label: "Manpower++",
-            tooltip: "Bundled into the rewire package",
+            note: "Bundled into the rewire package",
             variableUnits: [],
             freeLabel: "WAIVED",
           },
