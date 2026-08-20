@@ -11,7 +11,7 @@ export default function Home() {
       <Header active="engineering" />
       <main className="flex-1">
         <BlurHero />
-        <RenderShowcase />
+        {/* <RenderShowcase /> */}
         <Projects />
         <Contact />
       </main>

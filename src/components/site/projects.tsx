@@ -77,7 +77,7 @@ export function Projects() {
           ))}
         </ul>
 
-        <div className="mt-8 flex flex-wrap items-center gap-4">
+        {/* <div className="mt-8 flex flex-wrap items-center gap-4"> */}
           {/* <div className="flex items-center gap-3">
             <Button
               variant="outline"
@@ -99,7 +99,7 @@ export function Projects() {
             </Button>
           </div> */}
 
-          <ul className="flex flex-wrap gap-2" aria-label="Choose a project">
+          <ul className="mt-8 flex justify-center items-center w-full gap-4" aria-label="Choose a project">
             {PROJECTS.map((project, index) => (
               <li key={project.title}>
                 <button
@@ -108,7 +108,7 @@ export function Projects() {
                   aria-label={project.title}
                   aria-current={start === index}
                   className={cn(
-                    "relative h-11 w-11 overflow-hidden rounded-md border-2 transition",
+                    "relative h-12 w-12 overflow-hidden rounded-md border-2 transition",
                     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary",
                     start === index
                       ? "border-secondary"
@@ -127,7 +127,7 @@ export function Projects() {
               </li>
             ))}
           </ul>
-        </div>
+        {/* </div> */}
       </div>
     </section>
   );
