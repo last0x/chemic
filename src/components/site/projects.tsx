@@ -78,7 +78,7 @@ export function Projects() {
         </ul>
 
         <div className="mt-8 flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-3">
+          {/* <div className="flex items-center gap-3">
             <Button
               variant="outline"
               size="icon"
@@ -97,7 +97,7 @@ export function Projects() {
             >
               <ArrowRight className="h-4 w-4" />
             </Button>
-          </div>
+          </div> */}
 
           <ul className="flex flex-wrap gap-2" aria-label="Choose a project">
             {PROJECTS.map((project, index) => (

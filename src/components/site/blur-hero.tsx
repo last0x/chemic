@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
+import { useImageReady } from "@/lib/use-image-ready";
 import { cn } from "@/lib/utils";
 
 const COVERS = [
@@ -19,7 +20,7 @@ const AUTOPLAY_MS = 5500;
 export function BlurHero() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [ready, setReady] = useState(false);
+  const { ready, ref, onLoad } = useImageReady();
 
   useEffect(() => {
     if (paused || !ready) return;
@@ -55,9 +56,8 @@ export function BlurHero() {
                 fill
                 priority={index === 0}
                 sizes="100vw"
-                onLoad={() => {
-                  if (index === 0) setReady(true);
-                }}
+                ref={index === 0 ? ref : undefined}
+                onLoad={index === 0 ? onLoad : undefined}
                 className={cn(
                   "object-cover bg-transparent",
                   index === active && ready && "animate-hero-zoom",
