@@ -30,6 +30,7 @@ const COLORS = {
 const MAX_VARIABLE_UNITS = 7;
 
 const CHART_HEIGHT = 360;
+const Y_AXIS_WIDTH = 100;
 const CHART_MARGIN = { top: 4, right: 56, left: 4, bottom: 4 };
 
 type FlatRow = {
@@ -169,6 +170,85 @@ function stackedWidth(row: FlatRow): number {
   return width;
 }
 
+function WaterfallPlot({
+  rows,
+  totalLabel,
+  xMax,
+}: {
+  rows: FlatRow[];
+  totalLabel: string;
+  xMax: number;
+}) {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart
+        data={rows}
+        layout="vertical"
+        barCategoryGap="22%"
+        margin={CHART_MARGIN}
+      >
+        <XAxis type="number" hide domain={[0, xMax]} />
+        <YAxis
+          type="category"
+          dataKey="name"
+          width={Y_AXIS_WIDTH}
+          tickLine={false}
+          axisLine={false}
+          tick={<CustomYAxisTick rows={rows} />}
+          interval={0}
+        />
+
+        <Bar dataKey="offset" stackId="a" fill="transparent" isAnimationActive={false}>
+          <LabelList
+            dataKey="freeLabel"
+            position="right"
+            fill={COLORS.muted}
+            fontSize={12}
+            fontWeight={500}
+            formatter={(v) => (typeof v === "string" ? v : "")}
+          />
+        </Bar>
+
+        <Bar dataKey="fixed" stackId="a" fill={COLORS.blue} isAnimationActive={false} />
+        <Bar dataKey="fixedAlt" stackId="a" fill={COLORS.blueLight} isAnimationActive={false} />
+
+        {Array.from({ length: MAX_VARIABLE_UNITS }).map((_, i) => (
+          <Bar
+            key={i}
+            dataKey={`v${i}`}
+            stackId="a"
+            fill={COLORS.orange}
+            isAnimationActive={false}
+          >
+            {rows.map((row, ri) => (
+              <Cell
+                key={ri}
+                fill={COLORS.orange}
+                fillOpacity={row.name === "Wiring" ? 0.4 : 1}
+              />
+            ))}
+          </Bar>
+        ))}
+
+        <Bar dataKey="totalBar" stackId="a" className="opacity-80" fill={COLORS.total} isAnimationActive={false}>
+          {rows.map((_, i) => (
+            <Cell key={i} />
+          ))}
+          <LabelList
+            dataKey="totalBar"
+            position="right"
+            fill={COLORS.ink}
+            fontSize={12}
+            fontWeight={500}
+            formatter={(v) => (typeof v === "number" && v ? totalLabel : "")}
+          />
+        </Bar>
+        <Bar dataKey="scalePad" stackId="a" fill="transparent" isAnimationActive={false} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
 function WaterfallChart({
   title,
   rows: rawRows,
@@ -197,76 +277,26 @@ function WaterfallChart({
       <p className="font-mono text-center text-xs font-semibold uppercase tracking-widest text-primary">
         {title}
       </p>
+
+      <p className="mt-3 font-mono text-[11px] uppercase tracking-widest text-ink-soft md:hidden">
+        Cost breakdown
+      </p>
       <div className="flex min-w-0 gap-3">
         <div className="min-w-0 flex-1" style={{ height: CHART_HEIGHT }}>
-          <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={rows}
-            layout="vertical"
-            barCategoryGap="22%"
-            margin={CHART_MARGIN}
-          >
-            <XAxis type="number" hide domain={[0, xMax]} />
-            <YAxis
-              type="category"
-              dataKey="name"
-              width={100}
-              tickLine={false}
-              axisLine={false}
-              tick={<CustomYAxisTick rows={rows} />}
-              interval={0}
-            />
-
-            <Bar dataKey="offset" stackId="a" fill="transparent" isAnimationActive={false}>
-              <LabelList
-                dataKey="freeLabel"
-                position="right"
-                fill={COLORS.muted}
-                fontSize={12}
-                fontWeight={500}
-                formatter={(v) => (typeof v === "string" ? v : "")}
-              />
-            </Bar>
-
-            <Bar dataKey="fixed" stackId="a" fill={COLORS.blue} isAnimationActive={false} />
-            <Bar dataKey="fixedAlt" stackId="a" fill={COLORS.blueLight} isAnimationActive={false} />
-
-            {Array.from({ length: MAX_VARIABLE_UNITS }).map((_, i) => (
-              <Bar
-                key={i}
-                dataKey={`v${i}`}
-                stackId="a"
-                fill={COLORS.orange}
-                isAnimationActive={false}
-              >
-                {rows.map((row, ri) => (
-                  <Cell
-                    key={ri}
-                    fill={COLORS.orange}
-                    fillOpacity={row.name === "Wiring" ? 0.4 : 1}
-                  />
-                ))}
-              </Bar>
-            ))}
-
-            <Bar dataKey="totalBar" stackId="a" className="opacity-80" fill={COLORS.total} isAnimationActive={false}>
-              {rows.map((_, i) => (
-                <Cell key={i} />
-              ))}
-              <LabelList
-                dataKey="totalBar"
-                position="right"
-                fill={COLORS.ink}
-                fontSize={12}
-                fontWeight={500}
-                formatter={(v) => (typeof v === "number" && v ? totalLabel : "")}
-              />
-            </Bar>
-            <Bar dataKey="scalePad" stackId="a" fill="transparent" isAnimationActive={false} />
-          </BarChart>
-          </ResponsiveContainer>
+          <WaterfallPlot rows={rows} totalLabel={totalLabel} xMax={xMax} />
         </div>
-        <NotesColumn rows={rows} stacked={stacked} />
+        <NotesColumn
+          rows={rows}
+          stacked={stacked}
+          className="hidden md:flex"
+        />
+      </div>
+
+      <div className="mt-4 border-t border-border pt-3 md:hidden">
+        <p className="font-mono text-[11px] uppercase tracking-widest text-ink-soft">
+          Notes
+        </p>
+        <NotesWithAxis rows={rows} />
       </div>
     </div>
   );
@@ -275,15 +305,18 @@ function WaterfallChart({
 function NotesColumn({
   rows,
   stacked,
+  className,
 }: {
   rows: FlatRow[];
   stacked?: boolean;
+  className?: string;
 }) {
   return (
     <div
       className={cn(
         "flex shrink-0 flex-col border-l border-border pl-3",
         stacked ? "w-28" : "w-44",
+        className,
       )}
       style={{
         height: CHART_HEIGHT,
@@ -301,6 +334,52 @@ function NotesColumn({
           ) : null}
         </div>
       ))}
+    </div>
+  );
+}
+
+function NotesWithAxis({ rows }: { rows: FlatRow[] }) {
+  return (
+    <div
+      className="flex min-w-0"
+      style={{
+        height: CHART_HEIGHT,
+        paddingTop: CHART_MARGIN.top,
+        paddingBottom: CHART_MARGIN.bottom,
+      }}
+    >
+      <div
+        className="flex shrink-0 flex-col"
+        style={{ width: Y_AXIS_WIDTH }}
+      >
+        {rows.map((row, index) => (
+          <div
+            key={`${row.name}-${index}`}
+            className="flex min-h-0 flex-1 items-center justify-end pr-1"
+          >
+            <span
+              className={cn(
+                "text-right text-[11px] leading-tight",
+                row.isHeader ? "font-medium text-ink" : "text-ink-soft",
+              )}
+            >
+              {row.name}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col border-l border-border pl-3">
+        {rows.map((row, index) => (
+          <div
+            key={`${row.name}-note-${index}`}
+            className="flex min-h-0 flex-1 items-center"
+          >
+            {row.note ? (
+              <p className="text-[11px] leading-snug text-ink-soft">{row.note}</p>
+            ) : null}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -387,7 +466,7 @@ export function WaterfallComparison({
       <div
         className={cn(
           "flex w-full flex-col gap-4",
-          !stacked && "md:flex-row",
+          !stacked && "lg:flex-row",
         )}
       >
         {charts.map((chart) => (

@@ -54,7 +54,8 @@ export function BlurHero() {
                 src={cover.src}
                 alt={cover.alt}
                 fill
-                priority={index === 0}
+                loading={index === 0 ? "eager" : "lazy"}
+                fetchPriority={index === 0 ? "high" : "auto"}
                 sizes="100vw"
                 ref={index === 0 ? ref : undefined}
                 onLoad={index === 0 ? onLoad : undefined}
@@ -116,6 +117,7 @@ export function BlurHero() {
                     src={item.src}
                     alt={item.alt}
                     fill
+                    loading={index === 0 ? "eager" : "lazy"}
                     sizes="(min-width: 1024px) 224px, (min-width: 768px) 192px, (min-width: 640px) 112px, 76px"
                     className="object-cover"
                     draggable={false}
