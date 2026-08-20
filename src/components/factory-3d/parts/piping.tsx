@@ -47,7 +47,7 @@ export function Piping() {
 
   return (
     <group>
-      <Hoverable infoKey="manifold">
+      <Hoverable infoKey="wastewater">
         <Pipe from={[-6, 0.35, -8.6]} to={[11, 0.35, -8.6]} radius={0.15} color={0x4a6fa1} />
       </Hoverable>
 
